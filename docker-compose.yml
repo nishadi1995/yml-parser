@@ -1,0 +1,47 @@
+version: "2.2"
+services:
+  server:
+    container_name: server
+    build: server
+    image: performancetest/server
+    ports:
+    - 8080:8080
+    - 9011:9011
+    volumes:
+    - './uploaded_files:/uploaded_files'
+    links:
+    - stats
+  client:
+    container_name: client
+    build: client
+    image: performancetest/client
+    ports:
+    - 8081:8081
+    - 9010:9010
+    environment:
+      - SERVER-URL=server
+    depends_on:
+      - server
+  stats:
+    image: virtualzone/docker-container-stats
+    container_name: 'stats'
+    ports:
+      - '8085:8080'
+    volumes:
+      - '/var/lib/docker/:/var/lib/docker:ro'
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+    links:
+      - 'client'
+  abc:
+    container_name: server
+    build: server
+    image: performancetest/server
+    ports:
+    - 8080:8080
+    - 9011:9011
+    volumes:
+    - './uploaded_files:/uploaded_files'
+    depends_on:
+      - server
+      - client
+#'/home/docker/storage/stats/db:/opt/docker-stats/db'
